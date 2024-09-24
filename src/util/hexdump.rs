@@ -1,6 +1,32 @@
 use super::args::Args;
-use std::{fs::File, io::{self, Read}, os::windows::fs::MetadataExt};
+use std::{
+    error::Error,
+    fmt::Display,
+    fs::File,
+    io::{self, Read, Seek},
+    os::windows::fs::MetadataExt,
+};
 
+/**
+The LengthError is a custom error used when the
+user tries to use the -s start offset option with a value
+greater than or equal to the length of the file.
+
+Because `File::seek()` can lead to undefined behavior in this case,
+we handle it ourselves with a custom error & detailed message.
+*/
+#[derive(Debug, Clone)]
+struct LengthError {
+    message: String,
+}
+
+impl Display for LengthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.message)
+    }
+}
+
+impl Error for LengthError {}
 
 /*
 Entry point after the main function. This function is responsible for
@@ -8,15 +34,26 @@ checking that the file exists & calling the hexdump command with the correct
 length. The main reason this is separate than main() is so we can test it.
 */
 #[inline]
-pub fn hexdump(args: Args) -> io::Result<String> {
+pub fn hexdump(args: Args) -> Result<String, Box<dyn Error>> {
     // Next, we use metadata to proactively check if the file exists AND grab it's size without opening it
     // This lets us avoid reading the ENTIRE file into a buffer in the case where `-n NUM` < buffer.len()
     let metadata = std::fs::metadata(&args.file)?;
+    let file_length = metadata.file_size();
 
+    // Verify that the starting offset is not greater than the length of the file
+    if args.start >= file_length {
+        return Err(Box::new(LengthError {
+            message: format!(
+                "Starting offset ({}) was larger than the file length ({})",
+                args.start, file_length,
+            ),
+        }));
+    }
     // Then we get the number of bytes we need to read
-    let num: u64 = args.num.unwrap_or(metadata.file_size());
+    let num: u64 = args.num.unwrap_or(file_length);
 
-    let file = File::open(&args.file)?;
+    let mut file = File::open(&args.file)?;
+    file.seek(io::SeekFrom::Start(args.start))?;
     let mut buffer: Vec<u8> = vec![];
 
     // This limits the file to `len` bytes so we only read as much as we need to
@@ -28,11 +65,10 @@ pub fn hexdump(args: Args) -> io::Result<String> {
     Ok(hex_string)
 }
 
-
 /*
-Prints the hexdump given a buffer & the args. While args is mainly created via
-clap's CLI parsing, it can be created manually. Thus by taking args as an argument,
-we can pass info from main easily, as well as streamline unit testing.
+Actually prints the hexdump. This is where the meat of the program lies.
+the Args struct is required to pass in flag/option information from both CLI
+execution and unit tests.
 */
 #[inline]
 pub fn hexdump_from_input(args: Args, buffer: Vec<u8>) -> io::Result<String> {
@@ -73,15 +109,15 @@ pub fn hexdump_from_input(args: Args, buffer: Vec<u8>) -> io::Result<String> {
             output.push_str("\t\t|");
             for chunk in line.chunks(args.chunk_size) {
                 for byte in chunk {
-                    // If the byte is NOT in the printable ASCII range (32 - 127), default to a ' '
+                    /*
+                    Here we translate the byte from a u8 to a char
+                    All whitespace chars become ' '
+                    All other invalid chars (not in range 32 - 127) become '.'
+                    */
                     let ch = match *byte {
+                        b'\n' | b'\t' | b'\r' => ' ',
                         32..=127 => char::from(*byte),
                         _ => '.',
-                    };
-                    // Next, we revert all whitespace characters to be just ' '. This cleans up the output for the user
-                    let ch = match ch {
-                        '\n' | '\t' | '\r' => ' ',
-                        _ => ch,
                     };
                     // Finally, we print the char
                     output.push(ch);

@@ -14,7 +14,7 @@ pub struct Args {
     #[arg(required = true)]
     pub file: String,
 
-    /// Total number of bytes to print
+    /// Total number of bytes to print (will not read past EOF)
     #[arg(short)]
     pub num: Option<u64>,
 
@@ -31,9 +31,12 @@ pub struct Args {
     pub chunk_size: usize,
 
     /// Translates the bytes to ASCII in-line whenever possible.
-    /// Non-ASCII & whitespace will be visually converted to spaces.
     #[arg(short, long, default_value_t = false, action = ArgAction::SetTrue)]
     pub translate: bool,
+
+    /// Starting offset to print from
+    #[arg(short, long = "start-offset", default_value_t = 0)]
+    pub start: u64,
 }
 
 impl Args {
@@ -49,6 +52,7 @@ impl Default for Args {
         Args {
             file: "example.txt".to_string(),
             num: None,
+            start: 0,
             offset: true,
             chunk_size: 2,
             width: 16,
