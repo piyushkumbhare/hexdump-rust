@@ -37,14 +37,14 @@ pub struct Args {
 }
 
 impl Args {
-    // Parses args based on CLI input arguments. Used by main program.
+    // Parses args based on CLI input arguments. Used during user execution.
     pub fn new() -> Self {
         Args::parse()
     }
 }
 
 impl Default for Args {
-    // Creates struct with default values. Used for testing purposes.
+    // Defines the default struct values. Used for testing purposes.
     fn default() -> Self {
         Args {
             file: "example.txt".to_string(),

@@ -5,7 +5,7 @@ use std::{fs::File, io::{self, Read}, os::windows::fs::MetadataExt};
 /*
 Entry point after the main function. This function is responsible for
 checking that the file exists & calling the hexdump command with the correct
-length.
+length. The main reason this is separate than main() is so we can test it.
 */
 #[inline]
 pub fn hexdump(args: Args) -> io::Result<String> {
@@ -76,7 +76,7 @@ pub fn hexdump_from_input(args: Args, buffer: Vec<u8>) -> io::Result<String> {
                     // If the byte is NOT in the printable ASCII range (32 - 127), default to a ' '
                     let ch = match *byte {
                         32..=127 => char::from(*byte),
-                        _ => ' ',
+                        _ => '.',
                     };
                     // Next, we revert all whitespace characters to be just ' '. This cleans up the output for the user
                     let ch = match ch {

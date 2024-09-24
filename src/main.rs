@@ -9,7 +9,7 @@ up code AND have the process print detailed messages to the CLI on failure.
 fn main() -> Result<(), Box<dyn Error>> {
     /*
     Parse the command line arguments to build the args struct
-    This struct will be passed through the program that contains flag & option information
+    This struct will be passed through the program as it contains flag & option information
     */
     let args = Args::new();
 
