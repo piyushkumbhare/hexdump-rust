@@ -29,6 +29,10 @@ struct Args {
     /// Number of bytes per space-separated chunk
     #[arg(short, long = "chunk-size", default_value_t = 2)]
     chunk_size: usize,
+
+    /// Translates the bytes to ASCII in-line whenever possible
+    #[arg(short, long, default_value_t = false, action = ArgAction::SetTrue)]
+    translate: bool,
 }
 
 fn main() -> io::Result<()> {
@@ -49,10 +53,11 @@ fn main() -> io::Result<()> {
     let mut file_limited = file.take(num);
     file_limited.read_to_end(&mut buffer)?;
 
+    let line_length = args.width * 2 + args.width / args.chunk_size;
+
     let mut offset: usize = 0;
     // Prints each line (default 16 bytes per line)
     for line in buffer.chunks(args.width) {
-        
         // If the -o option was not passed, print the offset
         if args.offset {
             print!("{:08x}  ", offset);
@@ -66,6 +71,39 @@ fn main() -> io::Result<()> {
             }
             print!(" ");
         }
+        
+        // If the -t option was passed, print the translation
+        if args.translate {
+            // First we calculate & insert the necessary padding
+            let current_line_length = line.len() * 2 + line.len() / args.chunk_size;
+            let padding_amount = line_length - current_line_length;
+            print!("{}", " ".repeat(padding_amount));
+
+            // Next we print the |translation|
+            // This is exactly like before, except we print a byte's ASCII rather than Hex
+            print!("\t\t");
+            print!("|");
+            for chunk in line.chunks(args.chunk_size) {
+                for byte in chunk {
+                    // If the byte is NOT in the printable ASCII range (32 - 127), default to a ' '
+                    let ch = match *byte {
+                        32..=127 => char::from(*byte),
+                        _ => ' ',
+                    };
+                    // Next, we revert all whitespace characters to be just ' '. This cleans up the output for the user
+                    let ch = match ch {
+                        '\n' => ' ',
+                        '\t' => ' ',
+                        '\r' => ' ',
+                        _ => ch,
+                    };
+                    // Finally, we print the char
+                    print!("{}", ch);
+                }
+            }
+            print!("|");
+        }
+
         println!()
     }
     exit(0);

@@ -1,1 +1,3 @@
-Hello world! my name is billy this game sucks a lot i hate it so much i just need more text to make this somewhat long! Thanks bye
+This is an example text file.
+It has various characters and spans across
+multiple lines!
