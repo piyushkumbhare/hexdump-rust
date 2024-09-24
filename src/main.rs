@@ -1,5 +1,10 @@
-use clap::Parser;
-use std::{fs::File, io::{self, Read}, os::windows::fs::MetadataExt, process::exit};
+use clap::{ArgAction, Parser};
+use std::{
+    fs::File,
+    io::{self, Read},
+    os::windows::fs::MetadataExt,
+    process::exit,
+};
 
 /// A tool to print the contents of a file in hex.
 #[derive(Debug, Parser)]
@@ -9,63 +14,59 @@ struct Args {
     #[arg(required = true)]
     file: String,
 
-    /// Number of bytes to print
+    /// Total number of bytes to print
     #[arg(short)]
     num: Option<u64>,
+
+    /// Number of bytes to print per line
+    #[arg(short, long, default_value_t = 16)]
+    width: usize,
+
+    /// Don't print offset values
+    #[arg(short, long = "no-offset", default_value_t = true, action = ArgAction::SetFalse)]
+    offset: bool,
+
+    /// Number of bytes per space-separated chunk
+    #[arg(short, default_value_t = 2)]
+    chunk_size: usize,
 }
 
-fn main() {
+fn main() -> io::Result<()> {
     // First we parse the command line arguments
     let args = Args::parse();
 
-    // Check the metadata of the file. If any errors are thrown, report them to stderr and exit with code 1
-    // We use std::fs::metadata instead of buffer.len() to avoid reading the whole file in the case where `-n NUM` < buffer.len() 
-    match std::fs::metadata(&args.file) {
-        Ok(md) => {
-            // If the file exists and no errors are thrown, we can now print the hexdump of the file
+    // Next, we use metadata to proactively check if the file exists AND grab it's size without opening it
+    // This lets us avoid reading the ENTIRE file into a buffer in the case where `-n NUM` < buffer.len()
+    let metadata = std::fs::metadata(&args.file)?;
 
-            // The length to be used is provided by the -n flag, but defaulted to the size of the file
-            let len = args.num.unwrap_or(md.file_size());
-            
-            // Call the print_hex funciton. If any error is encountered, print it to stderr and exit with code 1
-            if let Err(e) = print_hex(&args.file, len) {
-                eprintln!("Ran into the following file error: {e}");
-                exit(1);                    
-            }
-            // On success, exit with code 0
-            exit(0);
-        },
-        Err(e) => {
-            eprintln!("Ran into the following file error: {e}");
-            exit(1);
-        },
-    }
-}
+    // Then we get the number of bytes we need to read
+    let num: u64 = args.num.unwrap_or(metadata.file_size());
 
-/// This function will print the first `len` bytes of the file at `path`
-/// 
-/// All inner errors are propatgated out to the parent function
-fn print_hex(path: &str, len: u64) -> io::Result<()> {
-
-    // Open the file and create an empty buffer
-    let file = File::open(path)?;
-    let mut buffer: &mut Vec<u8> = &mut vec![];
+    let file = File::open(&args.file)?;
+    let mut buffer: Vec<u8> = vec![];
 
     // This limits the file to `len` bytes so we only read as much as we need to
-    let mut file_limited = file.take(len);
+    let mut file_limited = file.take(num);
     file_limited.read_to_end(&mut buffer)?;
+
     let mut offset: usize = 0;
-    for chunk in buffer.chunks(16) {
-        print!("{:08x}  ", offset);
-        for two_bytes in chunk.chunks(1) {
-            print!("{:02x}", two_bytes[0]);
-            if let Some(second_byte) = two_bytes.get(1) {
-                print!("{:02x}", second_byte);
+    // Prints each line (default 16 bytes per line)
+    for line in buffer.chunks(args.width) {
+        
+        // If the -o option was not passed, print the offset
+        if args.offset {
+            print!("{:08x}  ", offset);
+        }
+
+        // Prints the space-separated chunks (default 2 bytes per chunk)
+        for chunk in line.chunks(args.chunk_size) {
+            for byte in chunk {
+                offset += 1;
+                print!("{:02x}", byte);
             }
             print!(" ");
         }
-        offset += 16;
         println!()
     }
-    Ok(())
-} 
+    exit(0);
+}
