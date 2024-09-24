@@ -27,7 +27,7 @@ struct Args {
     offset: bool,
 
     /// Number of bytes per space-separated chunk
-    #[arg(short, default_value_t = 2)]
+    #[arg(short, long = "chunk-size", default_value_t = 2)]
     chunk_size: usize,
 }
 
