@@ -9,7 +9,7 @@ This repository is my submission to Professor Porquet's screening test for Lab C
 
 The original hexdump functionality that was mentioned in the doc was simply to print the contents of a file in hex, with an optional `-n` flag to specify how many bytes to print. 
 
-This functionality was achieved in the second commit of this repository, and can be seen by viewing that commit and its code.
+This functionality was achieved in the second commit of this repository, and can be seen by viewing that commit and its code or by clicking [here](https://github.com/piyushkumbhare/hexdump-rust/blob/9903da2fa5de0be99ad01463a7b11051df953f9f/src/main.rs)
 
 The example given showcased the following Linux-style error message on an invalid program call:
 
