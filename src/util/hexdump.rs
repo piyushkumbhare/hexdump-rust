@@ -108,7 +108,7 @@ pub fn hexdump_from_input(args: Args, buffer: Vec<u8>) -> io::Result<String> {
                     // All whitespace becomes spaces
                     let ch = match *byte {
                         b'\n' | b'\t' | b'\r' => ' ',
-                        32..=127 => char::from(*byte),
+                        32..=126 => char::from(*byte),
                         _ => '.',
                     };
                     output.push(ch);
