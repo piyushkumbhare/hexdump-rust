@@ -84,8 +84,7 @@ Options:
 
 I decided not to copy the real `hexdump`'s features exactly and instead took the creative liberty to add ones that made sense and showcased Rust's power the best. Many of the original `hexdump`'s features are still present, but have just been generalized through different options/flags.
 
-All added features mentioned above are working as intended, but not thoroughly tested yet.
-
+All added features mentioned above are working as intended and have tests to ensure their functionality.
 ## Examples
 
 Here are examples of the non-obvious features on the same file used in the document:
@@ -175,9 +174,7 @@ $ hexdump_rust.exe hexdump -n 256 -t
 
 This project can be tested via Cargo's built-in testing tool.
 
-The current tests only apply to the core `hexdump` and `-n` functionality, so the other flags/options are not covered yet.
-
-All tests are located within `tests/integration_test.rs` and linted with the `#[test]` macro. To run all tests, simply run `cargo test` and a detailed summary of the results will be printed to the screen. All tests use `.bin` files located within the `tests/` directory, so please ensure you pull these too before running the tests.
+All tests are located within `tests/integration_test.rs` and linted with the `#[test]` macro. To run all tests, simply run `cargo test` and a detailed summary of the results will be printed to the screen. All tests use `.bin` or `.txt` files located within the `tests/` directory, so please ensure you pull these before running the tests.
 
 ## Final Thoughts
 
