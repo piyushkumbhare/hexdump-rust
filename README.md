@@ -82,7 +82,7 @@ Options:
   -h, --help                     Print help
 ```
 
-(I decided not to add the real `hexdump`'s features and instead added ones that made sense and showcased Rust's power the best)
+I decided not to copy the real `hexdump`'s features exactly and instead took the creative liberty to add ones that made sense and showcased Rust's power the best. Many of the original `hexdump`'s features are still present, but have just been generalized through different options/flags.
 
 All added features mentioned above are working as intended, but not thoroughly tested yet.
 
