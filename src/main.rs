@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Call hexdump with the args & print result
     let output = hexdump(args)?;
-    println!("{output}");
+    print!("{output}");
 
     exit(0);
 }

@@ -1,10 +1,10 @@
 use clap::{ArgAction, Parser};
 
 /*
-The Args struct is used to parse Command Line arguments easily
-The documentation comments are parsed by the clap's derive macros to create
-descriptions for each of the flags/options.
-*/
+ * The Args struct is used to parse Command Line arguments easily
+ * The documentation comments are parsed by the clap's macros to create
+ * descriptions for each of the flags/options.
+ */
 
 /// A tool to print the contents of a file in hex.
 #[derive(Debug, Parser)]
@@ -39,15 +39,15 @@ pub struct Args {
     pub start: u64,
 }
 
+// Creates struct by parsing CLI input. Used during user execution.
 impl Args {
-    // Parses args based on CLI input arguments. Used during user execution.
     pub fn new() -> Self {
         Args::parse()
     }
 }
 
+// Defines the default struct values. Used for testing purposes.
 impl Default for Args {
-    // Defines the default struct values. Used for testing purposes.
     fn default() -> Self {
         Args {
             file: "example.txt".to_string(),
