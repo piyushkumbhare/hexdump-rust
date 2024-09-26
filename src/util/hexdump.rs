@@ -13,7 +13,7 @@ use std::{
  * greater than or equal to the length of the file.
  *
  * Because `File::seek()` can lead to undefined behavior in this case,
- *we handle it ourselves with a custom error & detailed message.
+ * we handle it ourselves with a custom error & detailed message.
  */
 #[derive(Debug, Clone)]
 struct LengthError {

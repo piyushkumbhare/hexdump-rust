@@ -85,6 +85,22 @@ Options:
 I decided not to copy the real `hexdump`'s features exactly and instead took the creative liberty to add ones that made sense and showcased Rust's power the best. Many of the original `hexdump`'s features are still present, but have just been generalized through different options/flags.
 
 All added features mentioned above are working as intended and have tests to ensure their functionality.
+
+When it comes to error handling, we can use a nifty trick of having `main()` returning a `Result` type. This way, Rust will automatically print the `Err` type in the case of any failure:
+```
+$ hexdump_rust.exe not-a-file
+Error: Os { code: 2, kind: NotFound, message: "The system cannot find the file specified." }
+error: process didn't exit successfully: `hexdump_rust.exe not-a-file` (exit code: 1)
+```
+
+```
+$ hexdump_rust.exe example.bin -s 257
+Error: LengthError { message: "Starting offset (257) was larger than the file length (256)" }   
+error: process didn't exit successfully: `hexdump_rust.exe example.bin -s 257` (exit code: 1)
+```
+
+An added benefit of this approach is to allow us to utilize the `?` operator on any `Result` type present within the code. This drastically cleans up the logic and makes writing new code *much* easier.
+
 ## Examples
 
 Here are examples of the non-obvious features on the same file used in the document:
