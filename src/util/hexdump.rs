@@ -4,7 +4,6 @@ use std::{
     fmt::Display,
     fs::File,
     io::{self, Read, Seek},
-    os::windows::fs::MetadataExt,
 };
 
 /**
@@ -38,7 +37,20 @@ pub fn hexdump(args: Args) -> Result<String, Box<dyn Error>> {
     // Metadata lets us proactively check if the file exists AND grab it's size without opening it
     // This lets us avoid reading the ENTIRE file into a buffer in the case where `-n NUM` < buffer.len()
     let metadata = std::fs::metadata(&args.file)?;
-    let file_length = metadata.file_size();
+    let file_length;
+
+    // Get the file size (libraries vary based on OS, so use #[cfg])
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::fs::MetadataExt;
+        file_length = metadata.file_size();
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::linux::fs::MetadataExt;
+        file_length = metadata.st_size();
+    }
 
     if args.start >= file_length {
         return Err(Box::new(LengthError {
