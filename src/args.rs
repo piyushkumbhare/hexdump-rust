@@ -1,52 +1,4 @@
-use std::process::exit;
-
-// use clap::{ArgAction, Parser};
-
-/*
- * The Args struct is used to parse Command Line arguments easily
- * The documentation comments are parsed by the clap's macros to create
- * descriptions for each of the flags/options.
- */
-
-/// A tool to print the contents of a file in hex.
-// #[derive(Debug, Parser)]
-// #[command(about)]
-// pub struct Args {
-//     /// File to print
-//     #[arg(required = true)]
-//     pub file: String,
-
-//     /// Total number of bytes to print (will not read past EOF)
-//     #[arg(short)]
-//     pub num: Option<u64>,
-
-//     /// Number of bytes to print per line
-//     #[arg(short, long, default_value_t = 16)]
-//     pub width: u64,
-
-//     /// Don't print offset values
-//     #[arg(short, long = "no-offset", default_value_t = true, action = ArgAction::SetFalse)]
-//     pub offset: bool,
-
-//     /// Number of bytes per space-separated chunk
-//     #[arg(short, long = "chunk-size", default_value_t = 2)]
-//     pub chunk_size: usize,
-
-//     /// Translates the bytes to ASCII in-line whenever possible.
-//     #[arg(short, long, default_value_t = false, action = ArgAction::SetTrue)]
-//     pub translate: bool,
-
-//     /// Starting offset to print from
-//     #[arg(short, long = "start-offset", default_value_t = 0)]
-//     pub start: u64,
-// }
-
-// // Creates struct by parsing CLI input. Used during user execution.
-// impl Args {
-//     pub fn new() -> Self {
-//         Args::parse()
-//     }
-// }
+use std::{process::exit, str::FromStr};
 
 #[derive(Debug)]
 pub struct Args {
@@ -71,58 +23,16 @@ impl Args {
         while let Some(arg) = options.next() {
             match arg.as_str() {
                 "-n" => {
-                    args.num = Some(
-                        options
-                            .next()
-                            .unwrap_or_else(|| {
-                                eprintln!("Error: -n expects a number");
-                                exit(1);
-                            })
-                            .parse()
-                            .unwrap_or_else(|_| {
-                                eprintln!("Error: -n expects a number");
-                                exit(1);
-                            }),
-                    );
+                    args.num = Some(parse_arg(arg, options.next()));
                 }
                 "-w" | "--width" => {
-                    args.width = options
-                        .next()
-                        .unwrap_or_else(|| {
-                            eprintln!("Error: -w expects a number");
-                            exit(1);
-                        })
-                        .parse()
-                        .unwrap_or_else(|_| {
-                            eprintln!("Error: -w expects a number");
-                            exit(1);
-                        })
+                    args.width = parse_arg(arg, options.next());
                 }
                 "-c" | "--chunk-size" => {
-                    args.chunk_size = options
-                        .next()
-                        .unwrap_or_else(|| {
-                            eprintln!("Error: -c expects a number");
-                            exit(1);
-                        })
-                        .parse()
-                        .unwrap_or_else(|_| {
-                            eprintln!("Error: -c expects a number");
-                            exit(1);
-                        })
+                    args.chunk_size = parse_arg(arg, options.next());
                 }
                 "-s" | "--start-offset" => {
-                    args.start = options
-                        .next()
-                        .unwrap_or_else(|| {
-                            eprintln!("Error: -s expects a number");
-                            exit(1);
-                        })
-                        .parse()
-                        .unwrap_or_else(|_| {
-                            eprintln!("Error: -s expects a number");
-                            exit(1);
-                        })
+                    args.start = parse_arg(arg, options.next());
                 }
                 "-o" | "--no-offset" => {
                     args.offset = false;
@@ -164,6 +74,19 @@ Usage: hexdump [OPTIONS] <FILE>
         }
         args
     }
+}
+
+#[inline]
+fn parse_arg<T: FromStr>(arg: &str, val: Option<&String>) -> T {
+    val.unwrap_or_else(|| {
+        eprintln!("Error: {arg} expects a number");
+        exit(1);
+    })
+    .parse()
+    .unwrap_or_else(|_| {
+        eprintln!("Error: {arg} expects a number");
+        exit(1);
+    })
 }
 
 // Defines the default struct values
