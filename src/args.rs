@@ -42,12 +42,14 @@ impl Args {
                 },
                 "-h" | "--help" => {
                     println!(r#"
+hexdump: A tool used to print/format the bytes of an input file.
+
 Usage: hexdump [OPTIONS] <FILE>
 
     -n <NUM>                    Total number of bytes to read.
-    -w --width <NUM>            Number of bytes to print per line.
-    -c --chunk-size <NUM>       Number of bytes to print per space-separated chunk.
-    -s --start-offset <NUM>     Starting offset to read file from.
+    -w --width <NUM>            Number of bytes to print per line. (Default: 16)
+    -c --chunk-size <NUM>       Number of bytes to print per space-separated chunk. (Default: 2)
+    -s --start-offset <NUM>     Starting offset to read file from. (Default: 0)
     -t --translate              Enables in-line ASCII translation.
     -o --no-offset              Disables offset column.
     -h --help                   Prints this message.

@@ -70,9 +70,11 @@ impl Hexdump {
             }));
         }
 
-        // Number of bytes we need to read
-        let end_offset = args.num.unwrap_or(file_length);
-
+        let end_offset = match args.num {
+            Some(num) => args.start + num,
+            None => file_length,
+        }.min(file_length);
+        
         // Open the file, seek to start pos, read to buffer
         let mut file = File::open(&args.file)?;
         let start_offset = args.start;
