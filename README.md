@@ -143,7 +143,7 @@ $ hexdump_rust.exe hexdump -n 256 -t
 
 This project can be tested via Cargo's built-in testing tool.
 
-All tests are located within `tests/integration_test.rs` and linted with the `#[test]` macro. To run all tests, simply run `cargo test` and a detailed summary of the results will be printed to the screen. All tests use `.bin` or `.txt` files located within the `tests/` directory, so please ensure you pull these before running the tests.
+All tests are located within `tests.rs` and linted with the `#[test]` macro. To run all tests, simply run `cargo test` and a detailed summary of the results will be printed to the screen. All tests use `.bin` or `.txt` files located within the root directory, so please ensure you pull these before running the tests.
 
 ## Final Thoughts
 

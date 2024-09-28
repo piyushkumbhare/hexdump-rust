@@ -15,7 +15,7 @@ mod tests {
     fn test_small_input() -> Result<(), Box<dyn Error>> {
         // All defaults
         let args = Args {
-            file: "src/test-small-input.bin".to_string(),
+            file: "test-small-input.bin".to_string(),
             ..Default::default()
         };
 
@@ -33,7 +33,7 @@ mod tests {
     fn test_offset() -> Result<(), Box<dyn Error>> {
         // All defaults
         let args = Args {
-            file: "src/test-256B.bin".to_string(),
+            file: "test-256B.bin".to_string(),
             ..Default::default()
         };
 
@@ -59,7 +59,7 @@ mod tests {
     fn test_custom_length() -> Result<(), Box<dyn Error>> {
         // -n 65
         let args = Args {
-            file: "src/test-256B.bin".to_string(),
+            file: "test-256B.bin".to_string(),
             num: Some(65),
             ..Default::default()
         };
@@ -83,7 +83,7 @@ mod tests {
     fn test_translate() -> Result<(), Box<dyn Error>> {
         // -t
         let args = Args {
-            file: "src/test-ASCII.txt".to_string(),
+            file: "test-ASCII.txt".to_string(),
             translate: true,
             ..Default::default()
         };
@@ -96,7 +96,7 @@ mod tests {
             .map(|line| line.split('|').collect::<Vec<&str>>()[1])
             .collect();
 
-        let mut file = File::open("src/test-ASCII.txt")?;
+        let mut file = File::open("test-ASCII.txt")?;
         let mut actual_string = String::new();
         file.read_to_string(&mut actual_string)?;
 
@@ -112,7 +112,7 @@ mod tests {
     fn test_no_offset() -> Result<(), Box<dyn Error>> {
         // -o
         let args = Args {
-            file: "src/test-small-input.bin".to_string(),
+            file: "test-small-input.bin".to_string(),
             offset: false,
             ..Default::default()
         };
@@ -131,7 +131,7 @@ mod tests {
     fn test_chunk_size() -> Result<(), Box<dyn Error>> {
         // -o -c 1
         let args = Args {
-            file: "src/test-ASCII.txt".to_string(),
+            file: "test-ASCII.txt".to_string(),
             chunk_size: 1,
             offset: false,
             ..Default::default()
@@ -143,13 +143,13 @@ mod tests {
         #[cfg(target_os = "windows")]
         {
             use std::os::windows::fs::MetadataExt;
-            file_len = std::fs::metadata("src/test-ASCII.txt")?.file_size();
+            file_len = std::fs::metadata("test-ASCII.txt")?.file_size();
         }
 
         #[cfg(target_os = "linux")]
         {
             use std::os::linux::fs::MetadataExt;
-            file_len = std::fs::metadata("src/test-ASCII.txt")?.st_size();
+            file_len = std::fs::metadata("test-ASCII.txt")?.st_size();
         }
 
         let all_chunks_str: String = output.trim().split('\n').collect();
@@ -172,7 +172,7 @@ mod tests {
     fn test_width() -> Result<(), Box<dyn Error>> {
         // -o -w 8
         let args = Args {
-            file: "src/test-256B.bin".to_string(),
+            file: "test-256B.bin".to_string(),
             width: 8,
             offset: false,
             ..Default::default()
@@ -192,7 +192,7 @@ mod tests {
     fn test_start_offset() -> Result<(), Box<dyn Error>> {
         // -o -s 6
         let args = Args {
-            file: "src/test-ASCII.txt".to_string(),
+            file: "test-ASCII.txt".to_string(),
             start: 6,
             offset: false,
             ..Default::default()
