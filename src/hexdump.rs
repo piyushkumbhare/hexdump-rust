@@ -61,7 +61,7 @@ impl Hexdump {
         }
 
         // Throw LengthError if start offset is out of bounds
-        if args.start >= file_length {
+        if args.start > file_length {
             return Err(Box::new(LengthError {
                 message: format!(
                     "Starting offset ({}) was larger than the file length ({})",
