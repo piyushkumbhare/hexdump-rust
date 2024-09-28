@@ -27,21 +27,19 @@ impl Display for LengthError {
 
 impl Error for LengthError {}
 
-
 pub struct Hexdump {
     args: Args,
     file: File,
     line_length: u64,
-    total_bytes: u64,
-    bytes_read: u64,
+    end_offset: u64,
+    current_offset: u64,
 }
 
 impl Hexdump {
-
     /// Opens the specified file and returns a `Hexdump` object.
     /// (The file will remain opened until the `Hexdump` object is dropped)
-    /// 
-    /// Will return an `Error` if the file is unable to be opened or 
+    ///
+    /// Will return an `Error` if the file is unable to be opened or
     /// if the starting offset is larger than the size of the file.
     pub fn new(args: Args) -> Result<Self, Box<dyn Error>> {
         // Metadata lets us proactively check if the file exists AND grab it's size without opening it
@@ -71,12 +69,14 @@ impl Hexdump {
                 ),
             }));
         }
+
         // Number of bytes we need to read
-        let total_bytes = args.num.unwrap_or(file_length) - args.start;
+        let end_offset = args.num.unwrap_or(file_length);
 
         // Open the file, seek to start pos, read to buffer
         let mut file = File::open(&args.file)?;
-        file.seek(io::SeekFrom::Start(args.start))?;
+        let start_offset = args.start;
+        file.seek(io::SeekFrom::Start(start_offset))?;
 
         // Length of a full line of bytes, used for padding in in -t option.
         let line_length = args.width * 2 + args.width / args.chunk_size as u64;
@@ -85,8 +85,8 @@ impl Hexdump {
             args,
             file,
             line_length,
-            total_bytes,
-            bytes_read: 0,
+            end_offset,
+            current_offset: start_offset,
         })
     }
 
@@ -97,8 +97,8 @@ impl Hexdump {
         let mut buf;
 
         // Determines if we are on the last line (and if padding is needed)
-        if self.total_bytes - self.bytes_read < self.args.width {
-            buf = vec![0; (self.total_bytes - self.bytes_read) as usize];
+        if self.end_offset - self.current_offset < self.args.width {
+            buf = vec![0; (self.end_offset - self.current_offset) as usize];
         } else {
             buf = vec![0; self.args.width as usize];
         }
@@ -109,12 +109,12 @@ impl Hexdump {
 
         // If the -o option was not passed, print the offset
         if self.args.offset {
-            output.push_str(format!("{:08x}  ", self.bytes_read).as_str());
+            output.push_str(format!("{:08x}  ", self.current_offset).as_str());
         }
 
         for chunk in buf.chunks(self.args.chunk_size) {
             for byte in chunk {
-                self.bytes_read += 1;
+                self.current_offset += 1;
                 output.push_str(format!("{:02x}", byte).as_str());
             }
             output.push(' ');
@@ -153,7 +153,7 @@ impl Iterator for Hexdump {
 
     /// Yields the next `width` bytes in the file.
     fn next(&mut self) -> Option<Self::Item> {
-        if self.bytes_read < self.total_bytes {
+        if self.current_offset < self.end_offset {
             Some(self.read_next())
         } else {
             None
