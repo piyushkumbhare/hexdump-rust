@@ -42,9 +42,9 @@ impl Args {
                 },
                 "-h" | "--help" => {
                     println!(r#"
-hexdump: A tool used to print/format the bytes of an input file.
+hexbits: An improved hexdump tool used to print/format the bytes of an input file.
 
-Usage: hexdump [OPTIONS] <FILE>
+Usage: hexbits [OPTIONS] <FILE>
 
     -n <NUM>                    Total number of bytes to read.
     -w --width <NUM>            Number of bytes to print per line. (Default: 16)
@@ -62,16 +62,16 @@ Usage: hexdump [OPTIONS] <FILE>
                         args.file = filename.to_string();
                     } else {
                         eprintln!("Unexpected value: {filename}");
-                        eprintln!("Usage: hexdump [-n LEN] <FILE>");
-                        eprintln!("Try hexdump --help for more info.");
+                        eprintln!("Usage: hexbits [-n LEN] <FILE>");
+                        eprintln!("Try hexbits --help for more info.");
                         exit(1);
                     }
                 }
             }
         }
         if !found_file {
-            eprintln!("Usage: hexdump [-n LEN] <FILE>");
-            eprintln!("Try hexdump --help for more info.");
+            eprintln!("Usage: hexbits [-n LEN] <FILE>");
+            eprintln!("Try hexbits --help for more info.");
             exit(1);
         }
         args
